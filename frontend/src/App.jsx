@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
+// Use environment variable for backend URL, with fallback to localhost
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+
 function App() {
   const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
@@ -34,7 +37,7 @@ function App() {
     try {
       console.log('Fetching notes with token:', token ? 'Token exists' : 'No token');
       
-      const response = await fetch('http://localhost:8080/notes', {
+      const response = await fetch(`${BACKEND_URL}/notes`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -77,7 +80,7 @@ function App() {
     try {
       console.log('Attempting login with:', { email, password });
       
-      const response = await fetch('http://localhost:8080/login', {
+      const response = await fetch(`${BACKEND_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -116,15 +119,16 @@ function App() {
           // Clear form fields
           setEmail('');
           setPassword('');
-        } catch (parseError) {
-          console.error('Error parsing login response JSON:', parseError);
+        } catch (parseErr) {
+          console.error('Error parsing login response JSON:', parseErr);
           setError('Received invalid response from server during login');
         }
       } else {
         try {
           const errorData = JSON.parse(responseText);
           setError(errorData.message || `Login failed (${response.status})`);
-        } catch (parseError) {
+        } catch (parseErr) {
+          console.error('Error parsing login error response:', parseErr);
           setError(`Login failed (${response.status}): ${responseText}`);
         }
       }
@@ -132,7 +136,7 @@ function App() {
       console.error('Login error:', err);
       // More detailed error message
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Network error. Please check your connection and make sure the backend server is running on http://localhost:8080');
+        setError(`Network error. Please check your connection and make sure the backend server is running at ${BACKEND_URL}`);
       } else {
         setError(`An error occurred: ${err.message}`);
       }
@@ -148,7 +152,7 @@ function App() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:8080/signup', {
+      const response = await fetch(`${BACKEND_URL}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -185,7 +189,7 @@ function App() {
         setError(errorData.message || 'Signup failed');
       }
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      setError(`Network error. Please check your connection and make sure the backend server is running at ${BACKEND_URL}`);
       console.error('Signup error:', err);
     } finally {
       setIsLoading(false);
@@ -233,9 +237,9 @@ function App() {
       const requestBody = JSON.stringify({ title, content });
       console.log('Request body:', requestBody);
       
-      console.log('Making fetch request to http://localhost:8080/notes');
+      console.log(`Making fetch request to ${BACKEND_URL}/notes`);
       
-      const response = await fetch('http://localhost:8080/notes', {
+      const response = await fetch(`${BACKEND_URL}/notes`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -263,8 +267,8 @@ function App() {
           setContent('');
           setSuccess('Note created successfully!');
           setActiveSection('notes');
-        } catch (parseError) {
-          console.error('Error parsing response JSON:', parseError);
+        } catch (parseErr) {
+          console.error('Error parsing response JSON:', parseErr);
           setError('Received invalid response from server');
         }
       } else if (response.status === 401 || response.status === 403) {
@@ -279,9 +283,8 @@ function App() {
           const errorData = JSON.parse(responseText);
           console.log('Parsed error data:', errorData);
           setError(errorData.message || `Failed to create note (${response.status})`);
-        } catch (parseError) {
-          // If we can't parse the error response as JSON, use the raw text
-          console.log('Could not parse error as JSON, using raw text');
+        } catch (parseErr) {
+          console.error('Error parsing error response:', parseErr);
           setError(`Failed to create note (${response.status}): ${responseText}`);
         }
       }
@@ -293,7 +296,7 @@ function App() {
       
       // More detailed error message
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Network error. Please check your connection and make sure the backend server is running on http://localhost:8080');
+        setError(`Network error. Please check your connection and make sure the backend server is running at ${BACKEND_URL}`);
       } else {
         setError(`An error occurred: ${err.message}`);
       }
@@ -327,9 +330,9 @@ function App() {
       const requestBody = JSON.stringify({ title, content });
       console.log('Request body:', requestBody);
       
-      console.log(`Making fetch request to http://localhost:8080/notes/${editingNoteId}`);
+      console.log(`Making fetch request to ${BACKEND_URL}/notes/${editingNoteId}`);
       
-      const response = await fetch(`http://localhost:8080/notes/${editingNoteId}`, {
+      const response = await fetch(`${BACKEND_URL}/notes/${editingNoteId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -364,8 +367,8 @@ function App() {
           setEditingNoteId(null);
           setSuccess('Note updated successfully!');
           setActiveSection('notes');
-        } catch (parseError) {
-          console.error('Error parsing response JSON:', parseError);
+        } catch (parseErr) {
+          console.error('Error parsing response JSON:', parseErr);
           setError('Received invalid response from server');
         }
       } else if (response.status === 401 || response.status === 403) {
@@ -380,9 +383,8 @@ function App() {
           const errorData = JSON.parse(responseText);
           console.log('Parsed error data:', errorData);
           setError(errorData.message || `Failed to update note (${response.status})`);
-        } catch (parseError) {
-          // If we can't parse the error response as JSON, use the raw text
-          console.log('Could not parse error as JSON, using raw text');
+        } catch (parseErr) {
+          console.error('Error parsing error response:', parseErr);
           setError(`Failed to update note (${response.status}): ${responseText}`);
         }
       }
@@ -394,7 +396,7 @@ function App() {
       
       // More detailed error message
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Network error. Please check your connection and make sure the backend server is running on http://localhost:8080');
+        setError(`Network error. Please check your connection and make sure the backend server is running at ${BACKEND_URL}`);
       } else {
         setError(`An error occurred: ${err.message}`);
       }
@@ -433,7 +435,7 @@ function App() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/notes/${id}`, {
+      const response = await fetch(`${BACKEND_URL}/notes/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -455,7 +457,7 @@ function App() {
         setError(errorData.message || 'Failed to delete note');
       }
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      setError(`Network error. Please check your connection and make sure the backend server is running at ${BACKEND_URL}`);
       console.error('Delete note error:', err);
     } finally {
       setIsLoading(false);
@@ -473,7 +475,7 @@ function App() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/tenants/${user.tenantSlug}/upgrade`, {
+      const response = await fetch(`${BACKEND_URL}/tenants/${user.tenantSlug}/upgrade`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -500,7 +502,7 @@ function App() {
         setError(errorData.message || 'Failed to upgrade');
       }
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      setError(`Network error. Please check your connection and make sure the backend server is running at ${BACKEND_URL}`);
       console.error('Upgrade error:', err);
     } finally {
       setIsLoading(false);
