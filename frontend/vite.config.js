@@ -7,13 +7,8 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
-    strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'https://notes-app-0nri.onrender.com',
-        changeOrigin: true,
-        secure: true,
-      }
-    }
-  }
+    strictPort: true
+  },
+  // Remove proxy configuration as it's not needed for production
+  // Proxy is only for local development and conflicts with production environment variables
 })

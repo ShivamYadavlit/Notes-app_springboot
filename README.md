@@ -151,7 +151,9 @@ For detailed instructions, see [DEPLOYMENT-RENDER-DOCKER-UPDATED.md](DEPLOYMENT-
 1. Create a new project on Vercel
 2. Connect your Git repository
 3. Set the root directory to `/frontend`
-4. Deploy the project
+4. Configure environment variables in Vercel dashboard:
+   - `VITE_BACKEND_URL` - Your deployed backend URL (e.g., https://your-backend.onrender.com)
+5. Deploy the project
 
 ## Environment Variables
 
@@ -163,6 +165,23 @@ The application uses the following environment variables:
 | `JWT_SECRET` | Secret key for JWT token signing | Yes | - |
 | `JWT_EXPIRATION` | Token expiration time (ms) | No | 86400000 (24 hours) |
 | `PORT` | Port to run the application on | No | 8080 |
+| `VITE_BACKEND_URL` | Backend API URL for frontend | Yes for production | http://localhost:8080 |
+
+## Troubleshooting
+
+### Network Error on Vercel Deployment
+If you see a "Network error" message on your deployed frontend, ensure:
+
+1. Your backend is deployed and running
+2. The `VITE_BACKEND_URL` environment variable is correctly set in your Vercel project settings
+3. CORS is properly configured on your backend (already done in this project)
+4. Your backend URL uses HTTPS (required for Vercel deployments)
+
+To check your Vercel environment variables:
+1. Go to your Vercel dashboard
+2. Select your project
+3. Go to Settings > Environment Variables
+4. Ensure `VITE_BACKEND_URL` is set to your deployed backend URL (e.g., https://your-backend.onrender.com)
 
 ## Evaluation Criteria Compliance
 This application fully satisfies all evaluation criteria:

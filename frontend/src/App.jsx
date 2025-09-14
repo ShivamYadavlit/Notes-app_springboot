@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// Use environment variable for backend URL, with fallback to localhost
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+// Use environment variable for backend URL, with fallback to deployed backend
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://notes-app-0nri.onrender.com';
 
 function App() {
   const [user, setUser] = useState(null);

@@ -1,5 +1,5 @@
 // API utility functions
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://notes-app-0nri.onrender.com';
 
 export const api = {
   // Test API connection
