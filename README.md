@@ -43,7 +43,7 @@ Each data entity (User, Note) contains a `tenantId` field that ensures strict da
 - **Frontend**: React, Vite, JavaScript
 - **Database**: MongoDB
 - **Authentication**: JWT
-- **Deployment**: Vercel
+- **Deployment**: Vercel, Render
 
 ## Test Accounts
 All test accounts use the password: `password`
@@ -86,17 +86,23 @@ All test accounts use the password: `password`
    cd backend
    ```
 
-2. Install dependencies and build the project:
+2. Create a .env file from the example:
+   ```
+   cp .env.example .env
+   ```
+   Then update the values in the .env file with your configuration.
+
+3. Install dependencies and build the project:
    ```
    mvn clean install
    ```
 
-3. Run the application:
+4. Run the application:
    ```
    mvn spring-boot:run
    ```
 
-4. Initialize test data (first time only):
+5. Initialize test data (first time only):
    ```
    curl -X POST http://localhost:8080/init
    ```
@@ -132,22 +138,40 @@ All test accounts use the password: `password`
    - Backend: http://localhost:8080
    - MongoDB: localhost:27017
 
-## Deployment to Vercel
+## Deployment
 
-### Backend Deployment
-1. Create a new project on Vercel
+### Backend Deployment to Render
+1. Create a new project on Render
 2. Connect your Git repository
 3. Set the root directory to `/backend`
-4. Add environment variables:
-   - `MONGODB_URI` - Your MongoDB connection string
+4. Select "Docker" as the build method
+5. Add environment variables:
+   - `SPRING_DATA_MONGODB_URI` - Your MongoDB connection string
    - `JWT_SECRET` - Your JWT secret key
-5. Deploy the project
+   - `JWT_EXPIRATION` - Token expiration time (e.g., 86400000)
+6. Deploy the project
 
-### Frontend Deployment
+For detailed instructions, see [DEPLOYMENT-RENDER-DOCKER-UPDATED.md](DEPLOYMENT-RENDER-DOCKER-UPDATED.md)
+
+### Frontend Deployment to Vercel
 1. Create a new project on Vercel
 2. Connect your Git repository
 3. Set the root directory to `/frontend`
 4. Deploy the project
+
+## Environment Variables
+
+The application uses the following environment variables:
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `SPRING_DATA_MONGODB_URI` | MongoDB connection string | Yes | - |
+| `JWT_SECRET` | Secret key for JWT token signing | Yes | - |
+| `JWT_EXPIRATION` | Token expiration time (ms) | No | 86400000 (24 hours) |
+| `SERVER_PORT` | Port to run the application on | No | 8080 |
+| `SPRING_WEB_CORS_ALLOWED_ORIGINS` | CORS allowed origins | No | * |
+| `SPRING_WEB_CORS_ALLOWED_METHODS` | CORS allowed methods | No | GET,POST,PUT,DELETE,OPTIONS |
+| `SPRING_WEB_CORS_ALLOWED_HEADERS` | CORS allowed headers | No | * |
 
 ## Evaluation Criteria Compliance
 This application fully satisfies all evaluation criteria:

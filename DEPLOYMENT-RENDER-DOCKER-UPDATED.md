@@ -36,6 +36,7 @@ WORKDIR /app
 # Copy Maven files
 COPY pom.xml .
 COPY src ./src
+COPY .env .env
 
 # Install Maven and build the application
 RUN apt-get update && apt-get install -y maven
@@ -52,12 +53,6 @@ COPY --from=build /app/target/notesapp-0.0.1-SNAPSHOT.jar app.jar
 # Expose port
 EXPOSE 8080
 
-# Environment variables with default values
-ENV SPRING_DATA_MONGODB_URI=mongodb+srv://shivamyadav2072000_db_user:59wr5wd3V0HHAa0Y@cluster0.jvk8bpk.mongodb.net/notesapp?retryWrites=true&w=majority
-ENV JWT_SECRET=NotesAppSecretKey12345678901234567890123456789012345678901234567890
-ENV JWT_EXPIRATION=86400000
-ENV PORT=8080
-
 # Create non-root user for security
 RUN addgroup --system spring && adduser --system spring --ingroup spring
 USER spring:spring
@@ -66,7 +61,34 @@ USER spring:spring
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-### 3. Create a New Web Service on Render (Docker Method)
+### 3. Environment Variables Setup
+
+The application uses environment variables for configuration. These can be set in multiple ways:
+
+#### Using .env File (Local Development)
+For local development, you can use the [.env](file:///C:/Users/shubh/OneDrive/Desktop/Fred/backend/.env) file in the backend directory:
+
+```properties
+# MongoDB Connection
+SPRING_DATA_MONGODB_URI=mongodb+srv://username:password@cluster0.jvk8bpk.mongodb.net/notesapp?retryWrites=true&w=majority
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here-at-least-32-characters
+JWT_EXPIRATION=86400000
+
+# Server Configuration
+SERVER_PORT=8080
+
+# CORS Configuration
+SPRING_WEB_CORS_ALLOWED_ORIGINS=*
+SPRING_WEB_CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS
+SPRING_WEB_CORS_ALLOWED_HEADERS=*
+```
+
+#### Using Render Environment Variables (Production)
+For production deployment on Render, set environment variables in the Render dashboard.
+
+### 4. Create a New Web Service on Render (Docker Method)
 
 1. Log in to your Render account
 2. Click "New" and select "Web Service"
@@ -96,7 +118,7 @@ Example MongoDB URI:
 mongodb+srv://username:password@cluster0.jvk8bpk.mongodb.net/notesapp?retryWrites=true&w=majority
 ```
 
-### 4. Configure Advanced Settings (Optional)
+### 5. Configure Advanced Settings (Optional)
 
 #### Health Check
 Render can automatically check your application's health:
@@ -107,13 +129,13 @@ Render can automatically check your application's health:
 #### Auto-Deploy
 Enable auto-deploy to automatically deploy new commits to your branch.
 
-### 5. Deploy
+### 6. Deploy
 
 1. Click "Create Web Service"
 2. Render will automatically start building and deploying your application using Docker
 3. Wait for the deployment to complete (this may take several minutes as Maven needs to download dependencies)
 
-### 6. Initialize Test Data (Optional)
+### 7. Initialize Test Data (Optional)
 
 After deployment, you can initialize test data by making a POST request to your deployed application's `/init` endpoint:
 
