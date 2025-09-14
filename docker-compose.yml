@@ -19,8 +19,6 @@ services:
     container_name: notesapp-backend
     ports:
       - "8080:8080"
-    env_file:
-      - ./backend/.env
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/notesapp
     depends_on:

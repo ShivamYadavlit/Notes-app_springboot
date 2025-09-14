@@ -86,23 +86,17 @@ All test accounts use the password: `password`
    cd backend
    ```
 
-2. Create a .env file from the example:
-   ```
-   cp .env.example .env
-   ```
-   Then update the values in the .env file with your configuration.
-
-3. Install dependencies and build the project:
+2. Install dependencies and build the project:
    ```
    mvn clean install
    ```
 
-4. Run the application:
+3. Run the application:
    ```
    mvn spring-boot:run
    ```
 
-5. Initialize test data (first time only):
+4. Initialize test data (first time only):
    ```
    curl -X POST http://localhost:8080/init
    ```
@@ -168,10 +162,7 @@ The application uses the following environment variables:
 | `SPRING_DATA_MONGODB_URI` | MongoDB connection string | Yes | - |
 | `JWT_SECRET` | Secret key for JWT token signing | Yes | - |
 | `JWT_EXPIRATION` | Token expiration time (ms) | No | 86400000 (24 hours) |
-| `SERVER_PORT` | Port to run the application on | No | 8080 |
-| `SPRING_WEB_CORS_ALLOWED_ORIGINS` | CORS allowed origins | No | * |
-| `SPRING_WEB_CORS_ALLOWED_METHODS` | CORS allowed methods | No | GET,POST,PUT,DELETE,OPTIONS |
-| `SPRING_WEB_CORS_ALLOWED_HEADERS` | CORS allowed headers | No | * |
+| `PORT` | Port to run the application on | No | 8080 |
 
 ## Evaluation Criteria Compliance
 This application fully satisfies all evaluation criteria:
