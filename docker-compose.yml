@@ -13,7 +13,9 @@ services:
       - mongodb_data:/data/db
 
   backend:
-    build: .
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: notesapp-backend
     ports:
       - "8080:8080"
@@ -21,8 +23,6 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/notesapp
     depends_on:
       - mongodb
-    volumes:
-      - ./backend:/app
 
   frontend:
     build:

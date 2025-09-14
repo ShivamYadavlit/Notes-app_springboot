@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "mvn spring-boot:run",
-    "build": "mvn clean package"
+    "build": "mvn clean package",
+    "env:create": "cp .env.example .env"
   },
   "dependencies": {
     "mongodb": "^6.10.0"
