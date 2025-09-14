@@ -1,0 +1,13 @@
+{
+  "name": "notesapp-backend",
+  "version": "1.0.0",
+  "description": "Multi-tenant SaaS Notes Application Backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "mvn spring-boot:run",
+    "build": "mvn clean package"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}
