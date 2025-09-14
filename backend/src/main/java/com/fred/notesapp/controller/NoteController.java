@@ -48,9 +48,12 @@ public class NoteController {
         
         User user = userOpt.get();
         
-        // Check note limit for FREE plan
-        if (noteService.isNoteLimitReached(user.getTenantId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Note limit reached. Upgrade to PRO plan.");
+        // Check note limit based on user role
+        if (noteService.isNoteLimitReached(user.getTenantId(), user.getId(), user.getRole())) {
+            String limitMessage = "ADMIN".equals(user.getRole()) ? 
+                "Admin note limit reached (2 notes). Upgrade to PRO plan for unlimited notes." :
+                "User note limit reached (1 note). Contact your admin to upgrade to PRO plan.";
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(limitMessage);
         }
         
         // Create note

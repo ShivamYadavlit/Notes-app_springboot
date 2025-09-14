@@ -2,6 +2,7 @@ package com.fred.notesapp.service;
 
 import com.fred.notesapp.model.Note;
 import com.fred.notesapp.model.Tenant;
+import com.fred.notesapp.model.User;
 import com.fred.notesapp.repository.NoteRepository;
 import com.fred.notesapp.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +51,22 @@ public class NoteService {
         return noteRepository.findByTenantId(tenantId).size();
     }
     
-    public boolean isNoteLimitReached(String tenantId) {
+    public long countByTenantIdAndUserId(String tenantId, String userId) {
+        return noteRepository.findByTenantIdAndUserId(tenantId, userId).size();
+    }
+    
+    public boolean isNoteLimitReached(String tenantId, String userId, String userRole) {
         Optional<Tenant> tenant = tenantRepository.findBySlug(tenantId);
         if (tenant.isPresent() && "PRO".equals(tenant.get().getPlan())) {
             return false; // No limit for PRO plan
         }
-        return countByTenantId(tenantId) >= 3; // FREE plan limit
+        
+        // Role-based limits for FREE plan
+        long userNoteCount = countByTenantIdAndUserId(tenantId, userId);
+        if ("ADMIN".equals(userRole)) {
+            return userNoteCount >= 2; // Admin limit: 2 notes
+        } else {
+            return userNoteCount >= 1; // User limit: 1 note
+        }
     }
 }

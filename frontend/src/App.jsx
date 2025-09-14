@@ -46,20 +46,51 @@ function App() {
       
       console.log('Notes response status:', response.status);
       
+      // Always try to read the response body, even for error responses
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      
       if (response.ok) {
-        const data = await response.json();
+        const data = JSON.parse(responseText);
         console.log('Notes fetched:', data);
         setNotes(data);
-      } else if (response.status === 401 || response.status === 403) {
+      } else if (response.status === 401) {
         // Token is invalid, clear it and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
         setError('Session expired. Please log in again.');
+      } else if (response.status === 403) {
+        // Check if it's a note limit error or actual access denied
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData.message && (errorData.message.includes('Note limit reached') || errorData.message.includes('note limit reached') || errorData.message.includes('Admin note limit') || errorData.message.includes('User note limit') || errorData.message.includes('Admin note limit reached') || errorData.message.includes('User note limit reached'))) {
+            // This is a note limit error, not a session issue
+            setError(errorData.message);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        } catch (_error) { // eslint-disable-line no-unused-vars
+          // If we can't parse as JSON, check if responseText itself contains note limit messages
+          // The backend returns plain text for note limit errors
+          if (responseText.includes('Note limit reached') || responseText.includes('note limit reached') || responseText.includes('Admin note limit') || responseText.includes('User note limit') || responseText.includes('Admin note limit reached') || responseText.includes('User note limit reached')) {
+            // This is a note limit error, not a session issue
+            setError(responseText);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        }
       } else {
-        const errorText = await response.text();
-        console.log('Notes fetch error:', errorText);
-        throw new Error('Failed to fetch notes: ' + errorText);
+        console.log('Notes fetch error:', responseText);
+        throw new Error('Failed to fetch notes: ' + responseText);
       }
     } catch (err) {
       console.error('Error fetching notes:', err);
@@ -271,12 +302,40 @@ function App() {
           console.error('Error parsing response JSON:', parseErr);
           setError('Received invalid response from server');
         }
-      } else if (response.status === 401 || response.status === 403) {
+      } else if (response.status === 401) {
         // Token is invalid, clear it and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
         setError('Session expired. Please log in again.');
+      } else if (response.status === 403) {
+        // Check if it's a note limit error or actual access denied
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData.message && (errorData.message.includes('Note limit reached') || errorData.message.includes('note limit reached') || errorData.message.includes('Admin note limit') || errorData.message.includes('User note limit') || errorData.message.includes('Admin note limit reached') || errorData.message.includes('User note limit reached'))) {
+            // This is a note limit error, not a session issue
+            setError(errorData.message);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        } catch (_error) { // eslint-disable-line no-unused-vars
+          // If we can't parse as JSON, check if responseText itself contains note limit messages
+          // The backend returns plain text for note limit errors
+          if (responseText.includes('Note limit reached') || responseText.includes('note limit reached') || responseText.includes('Admin note limit') || responseText.includes('User note limit') || responseText.includes('Admin note limit reached') || responseText.includes('User note limit reached')) {
+            // This is a note limit error, not a session issue
+            setError(responseText);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        }
       } else {
         // Handle error response
         try {
@@ -371,12 +430,40 @@ function App() {
           console.error('Error parsing response JSON:', parseErr);
           setError('Received invalid response from server');
         }
-      } else if (response.status === 401 || response.status === 403) {
+      } else if (response.status === 401) {
         // Token is invalid, clear it and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
         setError('Session expired. Please log in again.');
+      } else if (response.status === 403) {
+        // Check if it's a note limit error or actual access denied
+        try {
+          // First try to parse as JSON
+          const errorData = JSON.parse(responseText);
+          if (errorData.message && (errorData.message.includes('Note limit reached') || errorData.message.includes('note limit reached') || errorData.message.includes('Admin note limit') || errorData.message.includes('User note limit') || errorData.message.includes('Admin note limit reached') || errorData.message.includes('User note limit reached'))) {
+            // This is a note limit error, not a session issue
+            setError(errorData.message);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        } catch (_error) { // eslint-disable-line no-unused-vars
+          // If we can't parse as JSON, check if responseText itself contains note limit messages
+          if (responseText.includes('Note limit reached') || responseText.includes('note limit reached') || responseText.includes('Admin note limit') || responseText.includes('User note limit') || responseText.includes('Admin note limit reached') || responseText.includes('User note limit reached')) {
+            // This is a note limit error, not a session issue
+            setError(responseText);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        }
       } else {
         // Handle error response
         try {
@@ -443,15 +530,47 @@ function App() {
         }
       });
       
+      // Always try to read the response body, even for error responses
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      
       if (response.ok) {
         setNotes(notes.filter(note => note.id !== id));
         setSuccess('Note deleted successfully!');
-      } else if (response.status === 401 || response.status === 403) {
+      } else if (response.status === 401) {
         // Token is invalid, clear it and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
         setError('Session expired. Please log in again.');
+      } else if (response.status === 403) {
+        // Check if it's a note limit error or actual access denied
+        try {
+          // First try to parse as JSON
+          const errorData = JSON.parse(responseText);
+          if (errorData.message && (errorData.message.includes('Note limit reached') || errorData.message.includes('note limit reached') || errorData.message.includes('Admin note limit') || errorData.message.includes('User note limit') || errorData.message.includes('Admin note limit reached') || errorData.message.includes('User note limit reached'))) {
+            // This is a note limit error, not a session issue
+            setError(errorData.message);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        } catch (_error) { // eslint-disable-line no-unused-vars
+          // If we can't parse as JSON, check if responseText itself contains note limit messages
+          if (responseText.includes('Note limit reached') || responseText.includes('note limit reached') || responseText.includes('Admin note limit') || responseText.includes('User note limit') || responseText.includes('Admin note limit reached') || responseText.includes('User note limit reached')) {
+            // This is a note limit error, not a session issue
+            setError(responseText);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to delete note');
@@ -483,6 +602,10 @@ function App() {
         }
       });
       
+      // Always try to read the response body, even for error responses
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      
       if (response.ok) {
         setSuccess('Successfully upgraded to PRO plan!');
         // Refresh user data
@@ -491,12 +614,40 @@ function App() {
         localStorage.setItem('user', JSON.stringify(updatedUser));
         // Refresh notes
         fetchNotes(token);
-      } else if (response.status === 401 || response.status === 403) {
+      } else if (response.status === 401) {
         // Token is invalid, clear it and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
         setError('Session expired. Please log in again.');
+      } else if (response.status === 403) {
+        // Check if it's a note limit error or actual access denied
+        try {
+          // First try to parse as JSON
+          const errorData = JSON.parse(responseText);
+          if (errorData.message && (errorData.message.includes('Note limit reached') || errorData.message.includes('note limit reached') || errorData.message.includes('Admin note limit') || errorData.message.includes('User note limit') || errorData.message.includes('Admin note limit reached') || errorData.message.includes('User note limit reached'))) {
+            // This is a note limit error, not a session issue
+            setError(errorData.message);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        } catch (_error) { // eslint-disable-line no-unused-vars
+          // If we can't parse as JSON, check if responseText itself contains note limit messages
+          if (responseText.includes('Note limit reached') || responseText.includes('note limit reached') || responseText.includes('Admin note limit') || responseText.includes('User note limit') || responseText.includes('Admin note limit reached') || responseText.includes('User note limit reached')) {
+            // This is a note limit error, not a session issue
+            setError(responseText);
+          } else {
+            // Actual access denied - clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setError('Access denied. Please log in again.');
+          }
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to upgrade');
@@ -845,20 +996,6 @@ function App() {
           {activeSection === 'create' && (
             <div className="form-container">
               <h2>{editingNoteId ? 'Edit Note' : 'Create New Note'}</h2>
-              {notes.length >= 3 && user.tenantSlug && !editingNoteId && (
-                <div className="note-limit-warning">
-                  <p>You've reached the note limit for the FREE plan.</p>
-                  {user.role === 'ADMIN' ? (
-                    <button 
-                      onClick={() => setActiveSection('upgrade')}
-                    >
-                      Upgrade to PRO Plan
-                    </button>
-                  ) : (
-                    <p>Contact your admin to upgrade to PRO plan.</p>
-                  )}
-                </div>
-              )}
               <form onSubmit={editingNoteId ? handleUpdateNote : handleCreateNote}>
                 <div className="form-group">
                   <label htmlFor="note-title">Title:</label>
@@ -868,7 +1005,7 @@ function App() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    disabled={isLoading || (notes.length >= 3 && user.tenantSlug && !editingNoteId)}
+                    disabled={isLoading}
                     placeholder="Enter note title"
                   />
                 </div>
@@ -879,7 +1016,7 @@ function App() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     required
-                    disabled={isLoading || (notes.length >= 3 && user.tenantSlug && !editingNoteId)}
+                    disabled={isLoading}
                     rows="5"
                     placeholder="Enter note content"
                   />
@@ -905,7 +1042,7 @@ function App() {
                   ) : (
                     <button 
                       type="submit" 
-                      disabled={isLoading || (notes.length >= 3 && user.tenantSlug)}
+                      disabled={isLoading}
                     >
                       {isLoading ? 'Creating...' : 'Create Note'}
                     </button>
