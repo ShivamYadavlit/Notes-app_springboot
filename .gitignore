@@ -44,3 +44,8 @@ build/
 
 # Docker
 docker-compose.override.yml
+
+# Sensitive files
+backend/Dockerfile
+backend/src/main/resources/application.properties
+frontend/Dockerfile.frontend
